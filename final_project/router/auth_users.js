@@ -42,13 +42,13 @@ regd_users.post("/login", (req,res) => {
   if (authenticatedUser(password) && isValid(username)) {
       token = jwt.sign(
       {
+        user: username,
         data: password,
       },
-      "access",
+      JWT_SECRET,
       {
         expiresIn: 60 * 60,
-      },
-      JWT_SECRET
+      }
     )
     res.cookie('jwtToken', token);
     return res.status(200).json({message: "Login successful"});
@@ -59,10 +59,37 @@ regd_users.post("/login", (req,res) => {
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
   //Write your code here
-  
-  return res.status(300).json({message: "Yet to be implemented"});
+  const jwtToken = 'jwtToken';
+  let token = req.cookies[jwtToken];
+  decryptedToken = jwt.verify(token, JWT_SECRET)
+  const { user } = decryptedToken;
+  const isbn = req.params.isbn;
+  const review = req.body.review;
+  if (books[isbn] != null) {
+    books[isbn].reviews[user] = review;
+    return res.status(200).json({message: `Your review for book with ISBN ${isbn} has been posted`})
+  } else {
+    return res.status(404).json({message: "No matching books"})
+  }
 });
 
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+  const jwtToken = 'jwtToken';
+  let token = req.cookies[jwtToken];
+  decryptedToken = jwt.verify(token, JWT_SECRET)
+  const { user } = decryptedToken;
+  const isbn = req.params.isbn;
+  if (books[isbn] != null) {
+    if (books[isbn].reviews[user] != null) {
+      delete books[isbn].reviews[user];
+      return res.status(200).json({message: "Your review has been deleted"})
+    } else {
+      return res.status(404).json({message: "No matching review"})
+    }
+  } else {
+    return res.status(404).json({message: "No matching books"})
+  }
+});
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;
 module.exports.users = users;
