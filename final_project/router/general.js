@@ -36,42 +36,67 @@ public_users.post("/register", (req,res) => {
 // Get the book list available in the shop
 public_users.get('/',function (req, res) {
   //Write your code here
-  res.send(JSON.stringify(books, null, 4));
+  const promise = new Promise((resolve, reject) => {
+    setTimeout(() => resolve(books), 600);
+  });
+
+  promise.then(() => {
+    return res.send(JSON.stringify(books, null, 4));
+  });
 });
 
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn',function (req, res) {
   //Write your code here
   const isbn = req.params.isbn;
-  if (books[isbn] != null) {
-  res.send(books[isbn]);
-  } else {
-    return res.status(404).json({message: "No matching books"})
-  }
+  const promise = new Promise((resolve) => {
+    setTimeout(() => resolve(isbn), 600);
+  });
+  
+  promise.then(() => {
+    if (books[isbn] != null) {
+    res.send(books[isbn]);
+    } else {
+      return res.status(404).json({message: "No matching books"})
+    }
+  });
  });
   
 // Get book details based on author
 public_users.get('/author/:author',function (req, res) {
   //Write your code here
   const author = req.params.author;
-  let filteredBooks = Object.values(books).filter((book) => book.author === author)
-  if (filteredBooks != null){
-  res.send(filteredBooks)
-  } else {
-    return res.status(404).json({message: "No matching books"})
-  }
+  
+  const promise = new Promise((resolve) => {
+    setTimeout(() => resolve(books), 600);
+  });
+
+  promise.then(() => {
+    let filteredBooks = Object.values(books).filter((book) => book.author === author)
+    if (filteredBooks != null){
+      res.send(filteredBooks)
+    } else {
+      return res.status(404).json({message: "No matching books"})
+    }
+  });
 });
 
 // Get all books based on title
 public_users.get('/title/:title',function (req, res) {
   //Write your code here
   const title = req.params.title;
-  let filteredBooks = Object.values(books).filter((book) => book.title === title)
-  if (filteredBooks != null){
-  res.send(filteredBooks)
-  } else {
-    return res.status(404).json({message: "No matching books"})
-  }
+  const promise = new Promise((resolve) => {
+    setTimeout(() => resolve(books), 600);
+  });
+
+  promise.then(() => {
+    let filteredBooks = Object.values(books).filter((book) => book.title === title)
+    if (filteredBooks != null){
+      res.send(filteredBooks)
+    } else {
+      return res.status(404).json({message: "No matching books"})
+    }
+  });
 });
 
 //  Get book review
